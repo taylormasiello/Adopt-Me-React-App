@@ -1,18 +1,20 @@
 import { useState, useEffect } from "react";
+import useBreedList from "./useBreedList";
 import Pet from "./Pet";
 
 const ANIMALS = ["bird", "cat", "dog", "rabbit", "reptile"];
 
 const SearchParams = () => {
-  const [location, setLocation] = useState("Seattle, WA");
+  const [location, setLocation] = useState("");
   const [animal, setAnimal] = useState("");
   const [breed, setBreed] = useState("");
   const [pets, setPets] = useState([]);
-  const breeds = [];
+  const [breeds] = useBreedList(animal);
 
   useEffect(() => {
     requestPets();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // useEffect will always run once at the beginning; 2nd arg says when to rerun, if nothing will rerun after every render; empty array will say only do it once; if you put animal in, would run each time the state of animal changed
 
   async function requestPets() {
@@ -25,9 +27,16 @@ const SearchParams = () => {
     setPets(json.pets);
   }
 
+  // Better to onSubmit on the <form/> element over onClick on the <button /> element; when you submit a form, you have to prevent it from submitting, or it's going to refresh the page -> e.preventDefault();
+
   return (
     <div className="search-params">
-      <form>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          requestPets();
+        }}
+      >
         <label htmlFor="location">
           Locaiton
           <input
